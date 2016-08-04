@@ -5,7 +5,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.peak.salut.Callbacks.SalutCallback;
 import com.peak.salut.Callbacks.SalutDataCallback;
@@ -36,20 +35,14 @@ public class MainActivity extends AppCompatActivity implements SalutDataCallback
             @Override
             public void call() {
                 Log.e(TAG, "Sorry, but this device does not support WiFi Direct.");
+                hostButton.setClickable(false);
+                joinButton.setClickable(false);
+                hostButton.setText("Womp womp");
+                joinButton.setText("You don't support Wifi. How dare you‽");
             }
         });
 
-        network.registerWithHost(possibleHost, new SalutCallback() {
-            @Override
-            public void call() {
-                Log.d(TAG, "We're now registered.");
-            }
-        }, new SalutCallback() {
-            @Override
-            public void call() {
-                Log.d(TAG, "We failed to register.");
-            }
-        });
+
     }
     @Override
     public void onDataReceived(Object o) {
@@ -73,20 +66,31 @@ public class MainActivity extends AppCompatActivity implements SalutDataCallback
             @Override
             public void call(SalutDevice device) {
                 Log.d(TAG, "A device has connected with the name " + device.deviceName);
+                network.registerWithHost(device, new SalutCallback() {
+                    @Override
+                    public void call() {
+                        Log.d(TAG, "We're now registered.");
+                    }
+                }, new SalutCallback() {
+                    @Override
+                    public void call() {
+                        Log.d(TAG, "We failed to register.");
+                    }
+                });
             }
         }, false);
 
-        network.discoverWithTimeout(new SalutCallback() {
-            @Override
-            public void call() {
-                Log.d(TAG, "Look at all these devices! " + network.foundDevices.toString());
-            }
-        }, new SalutCallback() {
-            @Override
-            public void call() {
-                Log.d(TAG, "Bummer, we didn't find anyone. ");
-            }
-        }, 5000);
+//        network.discoverWithTimeout(new SalutCallback() {
+//            @Override
+//            public void call() {
+//                Log.d(TAG, "Look at all these devices! " + network.foundDevices.toString());
+//            }
+//        }, new SalutCallback() {
+//            @Override
+//            public void call() {
+//                Log.d(TAG, "Bummer, we didn't find anyone. ");
+//            }
+//        }, 5000);
     }
 
     private void startNetworkService() {
