@@ -23,9 +23,11 @@ public class MainActivity extends AppCompatActivity implements SalutDataCallback
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tic_tac_toe);
+        setContentView(R.layout.activity_main);
         hostButton = (Button) findViewById(R.id.button_host);
         joinButton = (Button) findViewById(R.id.button_join);
+        hostButton.setOnClickListener(this);
+        joinButton.setOnClickListener(this);
 
 
         SalutDataReceiver dataReceiver = new SalutDataReceiver(MainActivity.this, MainActivity.this);
