@@ -1,10 +1,9 @@
 package com.garrettshorr.multitac;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 
 import com.peak.salut.Callbacks.SalutCallback;
 import com.peak.salut.Callbacks.SalutDataCallback;
@@ -14,9 +13,8 @@ import com.peak.salut.SalutDataReceiver;
 import com.peak.salut.SalutDevice;
 import com.peak.salut.SalutServiceData;
 
-public class MainActivity extends AppCompatActivity implements SalutDataCallback, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements SalutDataCallback {
     private static final String TAG = MainActivity.class.getSimpleName() ;
-    private Button hostButton, joinButton;
     private Salut network;
 
 
@@ -24,11 +22,6 @@ public class MainActivity extends AppCompatActivity implements SalutDataCallback
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        hostButton = (Button) findViewById(R.id.button_host);
-        joinButton = (Button) findViewById(R.id.button_join);
-        hostButton.setOnClickListener(this);
-        joinButton.setOnClickListener(this);
-
 
         SalutDataReceiver dataReceiver = new SalutDataReceiver(MainActivity.this, MainActivity.this);
         SalutServiceData serviceData = new SalutServiceData("TicTacToe", 50489, "MultiTac");
@@ -37,33 +30,22 @@ public class MainActivity extends AppCompatActivity implements SalutDataCallback
             @Override
             public void call() {
                 Log.e(TAG, "Sorry, but this device does not support WiFi Direct.");
-                hostButton.setClickable(false);
-                joinButton.setClickable(false);
-                hostButton.setText("Womp womp");
-                joinButton.setText("You don't support Wifi. How dare you‽");
             }
         });
 
-
+        FragmentManager fm = getSupportFragmentManager();
+       if(fm.getFragments() == null || fm.getFragments().isEmpty()) {
+            fm.beginTransaction()
+                    .add(R.id.fragment_container, new HostOrJoinFragment(), "host or join")
+                    .commit();
+        }
     }
     @Override
     public void onDataReceived(Object o) {
 
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.button_host:
-                startNetworkService();
-                break;
-            case R.id.button_join:
-                joinNetwork();
-                break;
-        }
-    }
-
-    private void joinNetwork() {
+    protected void joinNetwork() {
         network.discoverNetworkServices(new SalutDeviceCallback() {
             @Override
             public void call(SalutDevice device) {
@@ -95,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements SalutDataCallback
 //        }, 5000);
     }
 
-    private void startNetworkService() {
+    protected void startNetworkService() {
         network.startNetworkService(new SalutDeviceCallback() {
             @Override
             public void call(SalutDevice device) {
